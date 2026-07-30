@@ -3,34 +3,34 @@ module NFA where
 import Meta
 import Data.List ( sort )
 
-type Trans = State -> Char -> [State] -- '#' for epsilon
-type NFA = ([State],[Char],Trans,State,[State])
+type Trans a = State a -> Char -> [State a] -- '#' for epsilon
+type NFA a = ([State a],[Char],Trans a,State a,[State a])
 
-type NFAInst = (NFA,[State])
+type NFAInst a = (NFA a,[State a])
 
-initialize :: NFA -> NFAInst
-initialize (q,a,t,s,acc) = ((q,a,t,s,acc), eps t [s])
+initialize :: Eq a => NFA a -> NFAInst a
+initialize (q,a,t,s,acc) = ((q,a,t,s,acc), remDup (eps t [s]))
 
-transition :: NFAInst -> Char -> NFAInst
+transition :: Eq a => NFAInst a -> Char -> NFAInst a
 transition ((s,a,d,q,f),states) c = ((s,a,d,q,f),states')
     where
         states' = remDup (concatMap (eps d . flip d c) states)
 
-eps :: Trans -> [State] -> [State]
+eps :: Trans a -> [State a] -> [State a]
 eps _ [] = []
 eps d (st:sts) = st : eps d (d st '#') ++ eps d sts 
 
-process :: NFAInst -> String -> NFAInst
+process :: Eq a => NFAInst a -> String -> NFAInst a
 process = foldl transition
 
-showRun :: NFAInst -> String -> [State]
+showRun :: Eq a => NFAInst a -> String -> [State a]
 showRun nfa = snd . process nfa
 
-accept :: NFA -> String -> Bool
+accept :: Eq a => NFA a -> String -> Bool
 accept nfa ss = let ((s,a,d,q,f),states) = process (initialize nfa) ss
                 in any (`elem` f) states
 
-checkValid :: [State] -> [Char] -> [((State,Char),[State])] -> State -> [State] -> Bool
+checkValid :: Eq a => [State a] -> [Char] -> [((State a,Char),[State a])] -> State a -> [State a] -> Bool
 checkValid states alphabets edges start accepts = p1 && p2 && p3 && p4
                 where
                     p1 = start `elem` states
@@ -40,7 +40,7 @@ checkValid states alphabets edges start accepts = p1 && p2 && p3 && p4
                     p3 = nodup domain && all p domain
                     p4 = all (all (`elem` states) . snd) edges
 
-genNFA :: [State] -> [Char] -> [((State,Char),[State])] -> State -> [State] -> NFA
+genNFA :: Eq a => [State a] -> [Char] -> [((State a,Char),[State a])] -> State a -> [State a] -> NFA a
 genNFA states alphabets edges start accepts | cond = (states, alphabets, delta, start, accepts)
         where
             cond = checkValid states alphabets edges start accepts 

@@ -12,6 +12,7 @@ convert (states,alphabets,delta,s,accs) = (states', alphabets, delta', s', accs'
         s' = remDup (eps delta [s])
         accs' = filter (any (`elem` accs)) states'
 
+-- Example : NFA of odd # a's to DFA
 states = [1,2]
 alphabets = ['a','b']
 trans = [((1,'a'),[2]),((2,'a'),[1])]

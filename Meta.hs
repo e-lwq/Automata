@@ -43,9 +43,3 @@ powerSet' (x : xs) = concatMap f (powerSet' xs)
 
 powerSet :: [a] -> [Set a]
 powerSet xs = map S (powerSet' xs)
-
-ts 1 = [2,4]
-ts 2 = [4]
-ts 3 = [1]
-ts 4 = [1]
-

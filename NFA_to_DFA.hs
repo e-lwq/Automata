@@ -1,8 +1,8 @@
 module NFA_to_DFA where
 
-import Meta
-import DFA
-import NFA 
+import Meta ( remDup, powerSet )
+import DFA ( DFA )
+import NFA ( NFA, genNFA, eps ) 
 
 convert :: Eq a => NFA a -> DFA [a]
 convert (states,alphabets,delta,s,accs) = (states', alphabets, delta', s', accs')
@@ -11,3 +11,13 @@ convert (states,alphabets,delta,s,accs) = (states', alphabets, delta', s', accs'
         delta' rs a = remDup (concatMap (eps delta . flip delta a) rs)
         s' = remDup (eps delta [s])
         accs' = filter (any (`elem` accs)) states'
+
+states = [1,2]
+alphabets = ['a','b']
+trans = [((1,'a'),[2]),((2,'a'),[1])]
+start = 1
+accepts = [2]
+nfa = genNFA states alphabets trans start accepts
+
+dfa = convert nfa
+(states',alphabets',trans',start',accepts') = dfa

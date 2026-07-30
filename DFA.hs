@@ -18,6 +18,9 @@ transition ((s,a,d,q,f),state) c = ((s,a,d,q,f),d state c)
 process :: DFAInst a -> String -> DFAInst a
 process = foldl transition
 
+showRun :: (Eq a) => DFAInst a -> String -> State a
+showRun dfa = snd . process dfa
+
 accept :: Eq a => DFA a -> String -> Bool
 accept dfa ss = let ((s,a,d,q,f),state) = process (initialize dfa) ss
                 in state `elem` f

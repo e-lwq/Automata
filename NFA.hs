@@ -16,9 +16,8 @@ transition ((s,a,d,q,f),states) c = ((s,a,d,q,f),states')
     where
         states' = remDup (concatMap (eps d . flip d c) states)
 
-eps :: Trans a -> [State a] -> [State a]
-eps _ [] = []
-eps d (st:sts) = st : eps d (d st '#') ++ eps d sts 
+eps :: Eq a => Trans a -> [State a] -> [State a]
+eps d qs = bfsVisited (flip d '#') qs qs
 
 process :: Eq a => NFAInst a -> String -> NFAInst a
 process = foldl transition
@@ -31,7 +30,7 @@ accept nfa ss = let ((s,a,d,q,f),states) = process (initialize nfa) ss
                 in any (`elem` f) states
 
 checkValid :: Eq a => [State a] -> [Char] -> [((State a,Char),[State a])] -> State a -> [State a] -> Bool
-checkValid states alphabets edges start accepts = p1 && p2 && p3 && p4
+checkValid states alphabets edges start accepts = p1 && p2 && p3 && p4 && p5 && p6
                 where
                     p1 = start `elem` states
                     p2 = all (`elem` states) accepts
@@ -39,6 +38,8 @@ checkValid states alphabets edges start accepts = p1 && p2 && p3 && p4
                     p (x,y) = x `elem` states && y `elem` ('#':alphabets)
                     p3 = nodup domain && all p domain
                     p4 = all (all (`elem` states) . snd) edges
+                    p5 = nodup states
+                    p6 = nodup alphabets
 
 genNFA :: Eq a => [State a] -> [Char] -> [((State a,Char),[State a])] -> State a -> [State a] -> NFA a
 genNFA states alphabets edges start accepts | cond = (states, alphabets, delta, start, accepts)

@@ -26,7 +26,7 @@ accept dfa ss = let ((s,a,d,q,f),state) = process (initialize dfa) ss
                 in state `elem` f
 
 checkValid :: Ord a => [State a] -> [Char] -> [((State a,Char),State a)] -> State a -> [State a] -> Bool
-checkValid states alphabets edges start accepts = p1 && p2 && p3 && p4
+checkValid states alphabets edges start accepts = p1 && p2 && p3 && p4 && p5 && p6
                 where
                     p1 = start `elem` states
                     p2 = all (`elem` states) accepts
@@ -36,6 +36,8 @@ checkValid states alphabets edges start accepts = p1 && p2 && p3 && p4
                     domain' = [(s,c) | s <- sstates, c <- salphabets]
                     p3 = domain == domain'
                     p4 = all ((`elem` states) . snd) edges
+                    p5 = nodup states
+                    p6 = nodup alphabets
 
 genDFA :: Ord a => [State a] -> [Char] -> [((State a,Char),State a)] -> State a -> [State a] -> DFA a
 genDFA states alphabets edges start accepts | cond = (states, alphabets, delta, start, accepts)

@@ -36,6 +36,21 @@ remEps = filter (/='#')
 derivations :: CFG -> [String]
 derivations (vs,ts,rs,s) = map remEps (derivations' (vs,ts,rs,s) [[s]])
 
+remEpsRules' :: [Var] -> [(Var,String)] -> [(Var,String)]
+remEpsRules' [] rules = rules
+remEpsRules' (v:vs) rules = addEpsRules v 
+
+remEpsRules :: [(Var,String)] -> Var -> [(Var,String)]
+remEpsRules rules start = remEpsRules' (filter (/=start) epsrs) rules'
+    where
+        epsrs = map fst (filter ((=="#").snd) rules)
+        rules' = filter (\(v,str)-> str/='#' || v==start) rules
+
+toChomsky :: CFG -> Char -> CFG
+toChomsky (vs,ts,rs,s) s' = (s':vs,ts,rs''',s')
+    where
+        rs' = (s',[s]):rs
+        rs'' = remEpsRules rs
 -- Example
 vars = ['S','A','B']
 ts = ['a','b']
